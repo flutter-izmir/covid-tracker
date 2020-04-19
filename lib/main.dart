@@ -1,4 +1,5 @@
 import 'package:covid_tracker/constants/color_constants.dart';
+import 'package:covid_tracker/pages/details_page.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: DetailsPage(),
     );
   }
 }
