@@ -1,18 +1,22 @@
 import 'package:covid_tracker/constants/color_constants.dart';
 import 'package:covid_tracker/liveupdate.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 
 import 'constants/color_constants.dart';
-import 'constants/color_constants.dart';
-import 'constants/color_constants.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(
+      DevicePreview(
+        builder: (context) => MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      builder: DevicePreview.appBuilder,
       theme: ThemeData(
         canvasColor: textColor,
         primarySwatch: Colors.blue,
