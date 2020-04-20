@@ -1,3 +1,5 @@
+import 'package:covid_tracker/widgets/bar_chart.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'constants/color_constants.dart';
@@ -81,6 +83,10 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
                 ),
               ),
               Align(
+                alignment: Alignment.center,
+                child: BarChartSample1(),
+              ),
+              Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   padding: EdgeInsets.all(18),
@@ -142,11 +148,15 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
                             children: <Widget>[
                               VirusInfoBox(
                                 color: Color(0xFFD54141),
-                                imageURL: "arrowtop.png",medicalCount: '626+', medicalTitle: 'Affected',
+                                imageURL: "arrowtop.png",
+                                medicalCount: '626+',
+                                medicalTitle: 'Affected',
                               ),
                               VirusInfoBox(
                                 color: Color(0xFF58BA50),
-                                imageURL: "arrowbottom.png",medicalCount: '230+', medicalTitle: 'Recoverd',
+                                imageURL: "arrowbottom.png",
+                                medicalCount: '230+',
+                                medicalTitle: 'Recoverd',
                               )
                             ],
                           )
