@@ -12,7 +12,7 @@ Color deceasedBoxColor = Color(0xFFB638F1);
 
 Color liveUpdateBoxColor = Color(0xFFDF565E);
 
-Color simptomsBoxColor = Color(0xFF0C213E);
+Color symptomsBoxColor = Color(0xFF0C213E);
 
 Color learnMoreButtonColor = Color(0xFF233750);
 
