@@ -1,5 +1,11 @@
-import 'package:covid_tracker/constants/color_constants.dart';
+import 'dart:async';
+
+import 'package:covid_tracker/models/Country.dart';
+import 'package:covid_tracker/services/corona_service.dart';
+import 'package:covid_tracker/services/geocoding_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,122 +17,105 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: GoogleMapsView(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class GoogleMapsView extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _GoogleMapsViewState createState() => _GoogleMapsViewState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _GoogleMapsViewState extends State<GoogleMapsView> {
+  Completer<GoogleMapController> _controller = Completer();
+
+  static final CameraPosition _initialPosition = CameraPosition(
+    target: LatLng(60, -95),
+  );
+
+  String _mapStyle;
+
+  List<Country> countries = [];
+  Set<Circle> circles = Set.identity();
+
+  Future<void> _goToCountry(String countryName) async {
+    try {
+      LatLngBounds bounds =
+          await GeocodingService.getCountryBounds(countryName);
+      final GoogleMapController controller = await _controller.future;
+      controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 0));
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future _future;
+
+  Future _getCountries() async {
+    countries = await CoronaService.getCountries();
+    _mapStyle = await rootBundle.loadString('assets/map_style.json');
+    for (var c in countries) {
+      Circle circle = Circle(
+          circleId: CircleId(c.country),
+          center: LatLng(c.countryInfo.lat, c.countryInfo.long),
+          fillColor: Colors.red.withOpacity(0.7),
+          strokeColor: Colors.red,
+          radius: 40000,
+          strokeWidth: 0);
+      circles.add(circle);
+    }
+    setState(() {});
+    return countries;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _getCountries();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 100,
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(25.0),
-              child: Text(
-                "Stay Home\nStay Safe",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          Container(
-            height: 400,
-            child: GridView.count(
-              crossAxisCount: 2,
-              mainAxisSpacing: 5,
-              crossAxisSpacing: 5,
-              childAspectRatio: 2,
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              children: [
-                SummaryBox(
-                  title: "Confirmed",
-                  count: 746,
-                  color: confirmedBoxColor,
-                ),
-                SummaryBox(
-                  title: "Active",
-                  count: 626,
-                  color: activeBoxColor,
-                ),
-                SummaryBox(
-                  title: "Recovered",
-                  count: 67,
-                  color: recoveredBoxColor,
-                ),
-                SummaryBox(
-                  title: "Deceased",
-                  count: 18,
-                  color: deceasedBoxColor,
-                ),
-              ],
-            ),
-          )
-        ],
+      body: FutureBuilder(
+        future: _future,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return GoogleMap(
+              mapToolbarEnabled: false,
+              compassEnabled: false,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              zoomGesturesEnabled: false,
+              rotateGesturesEnabled: false,
+              scrollGesturesEnabled: false,
+              tiltGesturesEnabled: false,
+              mapType: MapType.normal,
+              initialCameraPosition: _initialPosition,
+              onMapCreated: (GoogleMapController controller) async {
+                _controller.complete(controller);
+                controller.setMapStyle(_mapStyle);
+              },
+              circles: circles,
+            );
+          } else if (snapshot.hasError) {
+            print(snapshot.error);
+            return Center(
+              child: Text("Error loading data"),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
-    );
-  }
-}
-
-class SummaryBox extends StatelessWidget {
-  const SummaryBox({
-    @required this.color,
-    @required this.title,
-    @required this.count,
-  });
-  final String title;
-  final int count;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      width: 120,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Text(
-              title.toUpperCase(),
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
-            ),
-            Text(
-              "$count",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 30,
-              ),
-            ),
-          ],
-        ),
-      ),
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white,
+          onPressed: () {
+            _goToCountry("Turkey");
+          }),
     );
   }
 }
