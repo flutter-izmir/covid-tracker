@@ -2,6 +2,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:covid_tracker/constants/breakpoint_constants.dart';
 import 'package:covid_tracker/constants/color_constants.dart';
 import 'package:covid_tracker/liveupdate.dart';
+import 'package:covid_tracker/models/summary_model.dart';
+import 'package:covid_tracker/services/covid_service.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'constants/color_constants.dart';
@@ -34,6 +36,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final covidService = CovidService();
+  Future<Summary> summaryFuture;
+
+  @override
+  void initState() {
+    summaryFuture = covidService.getSummary();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -64,36 +75,57 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              GridView.count(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                crossAxisCount: size.width > tabletBreakpoint ? 4 : 2,
-                mainAxisSpacing: 5,
-                crossAxisSpacing: 5,
-                childAspectRatio: size.width / (size.height / 3),
-                children: [
-                  SummaryBox(
-                    title: "Confirmed",
-                    count: 746,
-                    color: confirmedBoxColor,
-                  ),
-                  SummaryBox(
-                    title: "Active",
-                    count: 626,
-                    color: activeBoxColor,
-                  ),
-                  SummaryBox(
-                    title: "Recovered",
-                    count: 67,
-                    color: recoveredBoxColor,
-                  ),
-                  SummaryBox(
-                    title: "Deceased",
-                    count: 18,
-                    color: deceasedBoxColor,
-                  ),
-                ],
-              ),
+              FutureBuilder<Summary>(
+                  future: summaryFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Container();
+                    }
+                    if (snapshot.hasData) {
+                      final summary = snapshot.data;
+                      return GridView.count(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        crossAxisCount: size.width > tabletBreakpoint ? 4 : 2,
+                        mainAxisSpacing: 5,
+                        crossAxisSpacing: 5,
+                        childAspectRatio: size.width / (size.height / 3),
+                        children: [
+                          SummaryBox(
+                            title: "Confirmed",
+                            count: summary.totalConfirmed,
+                            color: confirmedBoxColor,
+                          ),
+                          SummaryBox(
+                            title: "Active",
+                            count: summary.totalConfirmed -
+                                (summary.totalDeaths + summary.totalRecovered),
+                            color: activeBoxColor,
+                          ),
+                          SummaryBox(
+                            title: "Recovered",
+                            count: summary.totalRecovered,
+                            color: recoveredBoxColor,
+                          ),
+                          SummaryBox(
+                            title: "Deceased",
+                            count: summary.totalDeaths,
+                            color: deceasedBoxColor,
+                          ),
+                        ],
+                      );
+                    }
+                    return AspectRatio(
+                      aspectRatio: size.width / (size.height / 3),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    );
+                  }),
               SizedBox(height: 10),
               InkWell(
                 onTap: () {
