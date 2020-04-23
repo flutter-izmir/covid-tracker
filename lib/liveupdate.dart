@@ -1,10 +1,9 @@
+import 'package:covid_tracker/models/country_model.dart';
+import 'package:covid_tracker/models/daily_data_model.dart';
+import 'package:covid_tracker/services/covid_service.dart';
 import 'package:covid_tracker/widgets/bar_chart.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import 'constants/color_constants.dart';
-import 'constants/color_constants.dart';
-import 'constants/color_constants.dart';
 import 'constants/color_constants.dart';
 
 class LiveUpdateScreen extends StatefulWidget {
@@ -15,7 +14,28 @@ class LiveUpdateScreen extends StatefulWidget {
 }
 
 class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
-  String country = 'Turkey';
+  final covidService = CovidService();
+  Future<List<Country>> countryListFuture;
+  Future<List<DailyData>> dailyDataFuture;
+
+  void selectCountry(Country country) {
+    setState(() {
+      selectedCountry = country;
+      dailyDataFuture =
+          covidService.getDailyData(countrySlug: selectedCountry.slug);
+    });
+  }
+
+  @override
+  void initState() {
+    countryListFuture = covidService.getCountries()
+      ..then((countryList) {
+        selectCountry(countryList[0]);
+      });
+    super.initState();
+  }
+
+  Country selectedCountry;
 
   @override
   Widget build(BuildContext context) {
@@ -40,52 +60,95 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
                 image: AssetImage("liveupdatebg.png"), fit: BoxFit.fill)),
         child: Stack(
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(10),
-              width: 230,
-              height: 130,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: Color(0xFF0E3360).withOpacity(0.8)),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    "Select Country",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20,
-                        color: Colors.white),
-                  ),
-                  DropdownButton<String>(
-                    value: country,
-                    style: TextStyle(color: Colors.white),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.white,
+            FutureBuilder<List<Country>>(
+              future: countryListFuture,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Container();
+                }
+                if (snapshot.hasData) {
+                  final countryList = snapshot.data;
+                  return Container(
+                    padding: EdgeInsets.all(10),
+                    width: 230,
+                    height: 130,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        color: Color(0xFF0E3360).withOpacity(0.8)),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "Select Country",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 20,
+                              color: Colors.white),
+                        ),
+                        DropdownButton<Country>(
+                          value: selectedCountry,
+                          style: TextStyle(color: Colors.white),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.white,
+                          ),
+                          isExpanded: true,
+                          onChanged: (Country newValue) {
+                            selectCountry(newValue);
+                          },
+                          items: countryList.map<DropdownMenuItem<Country>>(
+                              (Country country) {
+                            return DropdownMenuItem<Country>(
+                              value: country,
+                              child: Text(country.name),
+                            );
+                          }).toList(),
+                        )
+                      ],
                     ),
-                    isExpanded: true,
-                    onChanged: (String newValue) {
-                      setState(() {
-                        country = newValue;
-                      });
-                    },
-                    items: <String>['Turkey', 'France', 'Italia', 'Germany']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  )
-                ],
+                  );
+                }
+
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
+            Positioned(
+              bottom: 10,
+              left: 10,
+              child: Container(
+                height: 200,
+                width: 200,
+                child: FutureBuilder<List<DailyData>>(
+                  future: dailyDataFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Container();
+                    }
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                          itemCount: snapshot.data.length,
+                          itemBuilder: (context, index) {
+                            final data = snapshot.data[index];
+                            return ListTile(
+                              title: Text(
+                                data.cases.toString(),
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          });
+                    }
+                    return CircularProgressIndicator();
+                  },
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: BarChartSample1(),
-            ),
+            )
+            // Align(
+            //   alignment: Alignment.center,
+            //   child: BarChartSample1(),
+            // ),
           ],
         ),
       ),
