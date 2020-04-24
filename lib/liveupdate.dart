@@ -42,13 +42,13 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
           children: <Widget>[
             Container(
               padding: EdgeInsets.all(10),
-              width: 230,
-              height: 130,
+              width: double.infinity,
+              height: 113,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(20)),
                   color: Color(0xFF0E3360).withOpacity(0.8)),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
@@ -78,13 +78,16 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
                         child: Text(value),
                       );
                     }).toList(),
-                  )
+                  ),
                 ],
               ),
             ),
             Align(
-              alignment: Alignment.center,
-              child: BarChartSample1(),
+              alignment: Alignment.bottomCenter,
+              child: BarChartSample1(
+                country: country,
+                content: "Virüs Detayları",
+              ),
             ),
           ],
         ),
