@@ -30,7 +30,7 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
   void initState() {
     countryListFuture = covidService.getCountries()
       ..then((countryList) {
-        selectCountry(countryList[0]);
+        selectCountry(countryList[30]);
       });
     super.initState();
   }
@@ -115,36 +115,54 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
                 );
               },
             ),
-            Positioned(
-              bottom: 10,
-              left: 10,
-              child: Container(
-                height: 200,
-                width: 200,
-                child: FutureBuilder<List<DailyData>>(
-                  future: dailyDataFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Container();
-                    }
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                          itemCount: snapshot.data.length,
-                          itemBuilder: (context, index) {
-                            final data = snapshot.data[index];
-                            return ListTile(
-                              title: Text(
-                                data.cases.toString(),
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            );
-                          });
-                    }
-                    return CircularProgressIndicator();
-                  },
-                ),
-              ),
-            )
+            FutureBuilder<List<DailyData>>(
+              future: dailyDataFuture,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Align(
+                    alignment: Alignment.bottomCenter,
+                    child: BarChartSample1(
+                      country: selectedCountry.name,
+                      content: snapshot.data,
+                    ),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Container();
+                }
+                return CircularProgressIndicator();
+              },
+            ),
+            // Positioned(
+            //   bottom: 10,
+            //   left: 10,
+            //   child: Container(
+            //     height: 200,
+            //     width: 200,
+            //     child: FutureBuilder<List<DailyData>>(
+            //       future: dailyDataFuture,
+            //       builder: (context, snapshot) {
+            //         if (snapshot.hasError) {
+            //           return Container();
+            //         }
+            //         if (snapshot.hasData) {
+            //           return ListView.builder(
+            //               itemCount: snapshot.data.length,
+            //               itemBuilder: (context, index) {
+            //                 final data = snapshot.data[index];
+            //                 return ListTile(
+            //                   title: Text(
+            //                     data.cases.toString(),
+            //                     style: TextStyle(color: Colors.white),
+            //                   ),
+            //                 );
+            //               });
+            //         }
+            //         return CircularProgressIndicator();
+            //       },
+            //     ),
+            //   ),
+            // )
             // Align(
             //   alignment: Alignment.center,
             //   child: BarChartSample1(),
