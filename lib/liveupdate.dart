@@ -83,10 +83,9 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
               ),
             ),
             Align(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.center,
               child: BarChartSample1(
                 country: country,
-                content: "Virüs Detayları",
               ),
             ),
           ],

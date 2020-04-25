@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:covid_tracker/main.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class BarChartSample1 extends StatefulWidget {
   String country;
-  String content;
   final List<Color> availableColors = [
     Colors.purpleAccent,
     Colors.yellow,
@@ -17,7 +15,7 @@ class BarChartSample1 extends StatefulWidget {
     Colors.redAccent,
   ];
 
-  BarChartSample1({Key key, this.country, this.content}) : super(key: key);
+  BarChartSample1({Key key, this.country}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => BarChartSample1State();
@@ -58,7 +56,7 @@ class BarChartSample1State extends State<BarChartSample1> {
                     height: 4,
                   ),
                   Text(
-                    widget.content,
+                    "Last 7 Days",
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
