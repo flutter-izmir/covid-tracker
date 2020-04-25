@@ -53,37 +53,37 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: <Widget>[
-              SizedBox(
-                height: 55,
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Stay Home\nStay Safe",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize:
-                        MediaQuery.of(context).size.width > tabletBreakpoint
-                            ? 50
-                            : 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              FutureBuilder<Summary>(
-                  future: summaryFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Container();
-                    }
-                    if (snapshot.hasData) {
-                      final summary = snapshot.data;
-                      return GridView.count(
+      body: FutureBuilder<Summary>(
+          future: summaryFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Container();
+            }
+            if (snapshot.hasData) {
+              final summary = snapshot.data.global;
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 55,
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Stay Home\nStay Safe",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: MediaQuery.of(context).size.width >
+                                    tabletBreakpoint
+                                ? 50
+                                : 36,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      GridView.count(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         crossAxisCount: size.width > tabletBreakpoint ? 4 : 2,
@@ -113,128 +113,136 @@ class _HomePageState extends State<HomePage> {
                             color: deceasedBoxColor,
                           ),
                         ],
-                      );
-                    }
-                    return AspectRatio(
-                      aspectRatio: size.width / (size.height / 3),
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        child: Center(
-                          child: CircularProgressIndicator(),
+                      ),
+                      SizedBox(height: 10),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    LiveUpdateScreen(snapshot.data)),
+                          );
+                        },
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 400),
+                          child: Ink(
+                            height: 80,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                                color: Colors.white,
+                                image: DecorationImage(
+                                    image: AssetImage("imagebg.png"),
+                                    fit: BoxFit.fill)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(13.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    "Live Update",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    "see live updates for countries",
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    );
-                  }),
-              SizedBox(height: 10),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LiveUpdateScreen()),
-                  );
-                },
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 400),
-                  child: Ink(
-                    height: 80,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Colors.white,
-                        image: DecorationImage(
-                            image: AssetImage("imagebg.png"),
-                            fit: BoxFit.fill)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(13.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            "Live Update",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 26,
-                              fontWeight: FontWeight.w600,
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: 400,
+                        ),
+                        child: AspectRatio(
+                          aspectRatio: size.width / (size.height / 3),
+                          child: Container(
+                            margin: EdgeInsets.only(top: 20),
+                            height: 200,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              color: symptomsBoxColor,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                SizedBox(width: 20),
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text(
+                                        "5 Symptoms\nabout Corona",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 23,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Container(
+                                        padding: EdgeInsets.only(
+                                            top: 13,
+                                            bottom: 13,
+                                            right: 40,
+                                            left: 40),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(13)),
+                                          color: learnMoreButtonColor,
+                                        ),
+                                        child: Text(
+                                          "Learn more",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w300),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Flexible(
+                                  child: Image.asset("doctor.png"),
+                                )
+                              ],
                             ),
                           ),
-                          Text(
-                            "see live updates for countries",
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      )
+                    ],
                   ),
+                ),
+              );
+            }
+            return AspectRatio(
+              aspectRatio: size.width / (size.height / 3),
+              child: Container(
+                width: 50,
+                height: 50,
+                child: Center(
+                  child: CircularProgressIndicator(),
                 ),
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: 400,
-                ),
-                child: AspectRatio(
-                  aspectRatio: size.width / (size.height / 3),
-                  child: Container(
-                    margin: EdgeInsets.only(top: 20),
-                    height: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      color: symptomsBoxColor,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        SizedBox(width: 20),
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Text(
-                                "5 Symptoms\nabout Corona",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              Container(
-                                padding: EdgeInsets.only(
-                                    top: 13, bottom: 13, right: 40, left: 40),
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(13)),
-                                  color: learnMoreButtonColor,
-                                ),
-                                child: Text(
-                                  "Learn more",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w300),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Flexible(
-                          child: Image.asset("doctor.png"),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
+            );
+          }),
     );
   }
 }

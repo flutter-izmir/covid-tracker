@@ -1,13 +1,14 @@
-import 'package:covid_tracker/models/country_model.dart';
 import 'package:covid_tracker/models/daily_data_model.dart';
 import 'package:covid_tracker/services/covid_service.dart';
 import 'package:covid_tracker/widgets/bar_chart.dart';
 import 'package:flutter/material.dart';
 
 import 'constants/color_constants.dart';
+import 'models/summary_model.dart';
 
 class LiveUpdateScreen extends StatefulWidget {
-  LiveUpdateScreen({Key key}) : super(key: key);
+  LiveUpdateScreen(this.summary);
+  Summary summary;
 
   @override
   _LiveUpdateScreenState createState() => _LiveUpdateScreenState();
@@ -17,6 +18,7 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
   final covidService = CovidService();
   Future<List<Country>> countryListFuture;
   Future<List<DailyData>> dailyDataFuture;
+  List<Country> get countries => widget.summary.countries;
 
   void selectCountry(Country country) {
     setState(() {
@@ -28,10 +30,7 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
 
   @override
   void initState() {
-    countryListFuture = covidService.getCountries()
-      ..then((countryList) {
-        selectCountry(countryList[30]);
-      });
+    selectCountry(countries[30]);
     super.initState();
   }
 
@@ -60,61 +59,47 @@ class _LiveUpdateScreenState extends State<LiveUpdateScreen> {
                 image: AssetImage("liveupdatebg.png"), fit: BoxFit.fill)),
         child: Stack(
           children: <Widget>[
-            FutureBuilder<List<Country>>(
-              future: countryListFuture,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Container();
-                }
-                if (snapshot.hasData) {
-                  final countryList = snapshot.data;
-                  return Container(
-                    padding: EdgeInsets.all(10),
-                    width: 230,
-                    height: 130,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        color: Color(0xFF0E3360).withOpacity(0.8)),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          "Select Country",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 20,
-                              color: Colors.white),
-                        ),
-                        DropdownButton<Country>(
-                          value: selectedCountry,
-                          style: TextStyle(color: Colors.white),
-                          underline: Container(
-                            height: 2,
-                            color: Colors.white,
-                          ),
-                          isExpanded: true,
-                          onChanged: (Country newValue) {
-                            selectCountry(newValue);
-                          },
-                          items: countryList.map<DropdownMenuItem<Country>>(
-                              (Country country) {
-                            return DropdownMenuItem<Country>(
-                              value: country,
-                              child: Text(country.name),
-                            );
-                          }).toList(),
-                        )
-                      ],
+            Container(
+              padding: EdgeInsets.all(10),
+              width: 230,
+              height: 130,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  color: Color(0xFF0E3360).withOpacity(0.8)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "Select Country",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 20,
+                        color: Colors.white),
+                  ),
+                  DropdownButton<Country>(
+                    value: selectedCountry,
+                    style: TextStyle(color: Colors.white),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.white,
                     ),
-                  );
-                }
-
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
+                    isExpanded: true,
+                    onChanged: (Country newValue) {
+                      selectCountry(newValue);
+                    },
+                    items: countries
+                        .map<DropdownMenuItem<Country>>((Country country) {
+                      return DropdownMenuItem<Country>(
+                        value: country,
+                        child: Text(country.name),
+                      );
+                    }).toList(),
+                  )
+                ],
+              ),
             ),
+
             FutureBuilder<List<DailyData>>(
               future: dailyDataFuture,
               builder: (context, snapshot) {

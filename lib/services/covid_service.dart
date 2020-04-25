@@ -1,4 +1,3 @@
-import 'package:covid_tracker/models/country_model.dart';
 import 'package:covid_tracker/models/daily_data_model.dart';
 import 'package:covid_tracker/models/summary_model.dart';
 import 'package:covid_tracker/repositories/covid_repository.dart';
@@ -11,20 +10,7 @@ class CovidService {
     try {
       final response = await covidRepository.getSummary();
       final data = response.data;
-      return Summary.fromJson(data['Global']);
-    } catch (e) {}
-  }
-
-  Future<List<Country>> getCountries() async {
-    try {
-      final response = await covidRepository.getCountries();
-      final data = response.data;
-      return (data as List).map((item) {
-        return Country.fromJson(item);
-      }).toList()
-        ..sort((a, b) {
-          return a.name.compareTo(b.name);
-        });
+      return Summary.fromJson(data);
     } catch (e) {}
   }
 
