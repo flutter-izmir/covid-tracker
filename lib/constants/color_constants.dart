@@ -11,3 +11,5 @@ Color recoveredBoxColor = Color(0xFFEFC02C);
 Color deceasedBoxColor = Color(0xFFB638F1);
 
 Color liveUpdateBoxColor = Color(0xFFDF565E);
+
+Color simptomsBoxColor = Color(0xFF0C213E);
